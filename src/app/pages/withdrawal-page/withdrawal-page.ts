@@ -20,19 +20,31 @@ export class WithdrawalPage {
   atmTotalAmout: number = 0;
 
   constructor(private atmService: AtmService) {
-    this.refresh();
+    this.getTotalAmout();
+    this.getTotalCurrencies();
   }
 
-  refresh() {
-    this.inventory = this.atmService.inventory;
-    this.atmTotalAmout = this.atmService.totalAmout;
+  getTotalAmout() {
+    this.atmService.getTotalAmout().subscribe({
+      next: (resp) => this.atmTotalAmout = resp.total,
+      error: () => console.log()
+    });
+  }
+
+  getTotalCurrencies() {
+    this.atmService.getTotalCurrencies().subscribe({
+      next: (resp) => this.inventory = resp.allCurrencies,
+      error: () => console.log()
+    });
   }
 
   withdraw() {
     this.atmService.withdraw(this.amount).subscribe({
-      next: (resp: WithDrawalResponse) => this.result = resp,
-      complete: () => this.refresh(),
-      error: () => console.log()
+      next: (resp) => this.result = resp,
+      complete: () => {
+        this.getTotalAmout();
+        this.getTotalCurrencies();
+      }
     });
   }
 
